@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>ApiLens - API Scanner</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--primary: #0f766e;
+			--primary-dark: #0d4f4a;
+			--secondary: #f97316;
+			--accent: #22d3ee;
+			--success: #10b981;
+			--danger: #ef4444;
+			--dark: #020617;
+			--gray: #64748b;
+			--light-gray: #020617;
+			--white: #020617;
+			--border: #1e293b;
+		}
+		
+		[data-theme="dark"] {
+			--white: #0f172a;
+			--light-gray: #1e293b;
+			--border: #334155;
+			--dark: #f1f5f9;
+			--gray: #94a3b8;
+		}
+		
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+			background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #000000 100%);
+			color: #e5e7eb;
+			line-height: 1.6;
+			transition: background 0.3s, color 0.3s;
+		}
+		
+		/* Header */
+		.header {
+			background: radial-gradient(circle at top left, rgba(34,211,238,0.18), transparent 55%),
+			            radial-gradient(circle at top right, rgba(249,115,22,0.2), transparent 55%),
+			            linear-gradient(135deg, #020617, #020617);
+			color: #f9fafb;
+			padding: 2rem;
+			box-shadow: 0 15px 45px rgba(15,23,42,0.8);
+			border-bottom: 1px solid rgba(148,163,184,0.35);
+		}
+		
+		.header-content {
+			max-width: 1400px;
+			margin: 0 auto;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		
+		.logo {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			font-size: 1.8rem;
+			font-weight: 800;
+		}
+		
+		.header-actions {
+			display: flex;
+			gap: 1rem;
+			align-items: center;
+		}
+		
+		.theme-toggle {
+			background: rgba(255,255,255,0.2);
+			border: 2px solid rgba(255,255,255,0.3);
+			color: white;
+			padding: 0.6rem 1.2rem;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 1.2rem;
+			transition: all 0.3s;
+		}
+		
+		.theme-toggle:hover {
+			background: rgba(255,255,255,0.3);
+		}
+		
+		.btn-link {
+			background: rgba(255,255,255,0.15);
+			color: white;
+			padding: 0.6rem 1.2rem;
+			border-radius: 8px;
+			text-decoration: none;
+			font-weight: 600;
+			transition: all 0.3s;
+			border: 2px solid rgba(255,255,255,0.3);
+		}
+		
+		.btn-link:hover {
+			background: rgba(255,255,255,0.25);
+		}
+		
+		/* Container */
+		.container {
+			max-width: 1400px;
+			margin: 2rem auto;
+			padding: 0 2rem;
+		}
+		
+		/* Scan Section */
+		.scan-section {
+			background: var(--light-gray);
+			border-radius: 16px;
+			padding: 2rem;
+			margin-bottom: 2rem;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+		}
+		
+		.scan-form {
+			display: flex;
+			gap: 1rem;
+			align-items: flex-end;
+			flex-wrap: nowrap;
+		}
+		
+		.scan-form .form-group {
+			min-width: 0;
+			flex: 1;
+		}
+		
+		.scan-form #scanBtn {
+			align-self: flex-end;
+			flex-shrink: 0;
+		}
+		
+		.form-group {
+			flex: 1;
+		}
+		
+		.form-group label {
+			display: block;
+			margin-bottom: 0.5rem;
+			font-weight: 600;
+			color: var(--dark);
+		}
+		
+		.form-group input {
+			width: 100%;
+			padding: 0.9rem 1.2rem;
+			border: 2px solid var(--border);
+			border-radius: 10px;
+			font-size: 1rem;
+			font-family: inherit;
+			background: var(--white);
+			color: var(--dark);
+			transition: all 0.3s;
+		}
+		
+		.form-group input:focus {
+			outline: none;
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+		}
+		
+		.btn {
+			padding: 0.9rem 2rem;
+			border: none;
+			border-radius: 10px;
+			font-size: 1rem;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.3s;
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+		
+		.btn-primary {
+			background: var(--primary);
+			color: white;
+		}
+		
+		.btn-primary:hover:not(:disabled) {
+			background: var(--primary-dark);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+		}
+		
+		.btn-primary:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+		
+		.btn-secondary {
+			background: var(--white);
+			color: var(--primary);
+			border: 2px solid var(--border);
+		}
+		
+		.btn-secondary:hover {
+			background: var(--light-gray);
+		}
+		
+		/* Spinner */
+		.spinner {
+			display: inline-block;
+			width: 16px;
+			height: 16px;
+			border: 2px solid rgba(255,255,255,0.3);
+			border-top-color: white;
+			border-radius: 50%;
+			animation: spin 0.6s linear infinite;
+		}
+		
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
+		
+		/* Alert */
+		.alert {
+			padding: 1rem 1.5rem;
+			border-radius: 10px;
+			margin-bottom: 1.5rem;
+			display: none;
+			align-items: center;
+			gap: 0.8rem;
+			font-weight: 500;
+		}
+		
+		.alert-error {
+			background: #fee2e2;
+			color: #991b1b;
+			border: 2px solid #fca5a5;
+		}
+		
+		.alert-success {
+			background: #d1fae5;
+			color: #065f46;
+			border: 2px solid #6ee7b7;
+		}
+		
+		/* Results */
+		.results-section {
+			background: var(--light-gray);
+			border-radius: 16px;
+			padding: 2rem;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+		}
+		
+		.results-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 2rem;
+			padding-bottom: 1rem;
+			border-bottom: 2px solid var(--border);
+		}
+		
+		.results-title {
+			font-size: 1.8rem;
+			font-weight: 800;
+			color: var(--dark);
+		}
+		
+		.stats {
+			display: flex;
+			gap: 2rem;
+		}
+		
+		.stat {
+			text-align: center;
+		}
+		
+		.stat-value {
+			font-size: 2rem;
+			font-weight: 800;
+			color: var(--primary);
+		}
+		
+		.stat-label {
+			font-size: 0.9rem;
+			color: var(--gray);
+			font-weight: 500;
+		}
+		
+		.export-buttons {
+			display: flex;
+			gap: 0.8rem;
+			flex-wrap: wrap;
+		}
+		
+		/* Controller Card */
+		.controller-card {
+			background: var(--white);
+			border-radius: 12px;
+			margin-bottom: 1.5rem;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+			overflow: hidden;
+			transition: all 0.3s;
+		}
+		
+		.controller-card:hover {
+			box-shadow: 0 4px 16px rgba(99,102,241,0.15);
+		}
+		
+		.controller-header {
+			padding: 1.5rem;
+			background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+			color: white;
+			cursor: pointer;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		
+		.controller-name {
+			font-size: 1.3rem;
+			font-weight: 700;
+		}
+		
+		.controller-count {
+			background: rgba(255,255,255,0.2);
+			padding: 0.4rem 1rem;
+			border-radius: 20px;
+			font-size: 0.9rem;
+			font-weight: 600;
+		}
+		
+		.endpoints {
+			padding: 1.5rem;
+		}
+		
+		.endpoint {
+			background: var(--light-gray);
+			border-radius: 10px;
+			padding: 1.2rem;
+			margin-bottom: 1rem;
+			border: 2px solid var(--border);
+			transition: all 0.3s;
+		}
+		
+		.endpoint:hover {
+			border-color: var(--primary);
+			box-shadow: 0 2px 8px rgba(99,102,241,0.1);
+		}
+		
+		.endpoint-header {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			margin-bottom: 0.8rem;
+		}
+		
+		.method-badge {
+			padding: 0.4rem 0.8rem;
+			border-radius: 6px;
+			font-weight: 700;
+			font-size: 0.85rem;
+			text-transform: uppercase;
+		}
+		
+		.method-get { background: #dbeafe; color: #1e40af; }
+		.method-post { background: #d1fae5; color: #065f46; }
+		.method-put { background: #fef3c7; color: #92400e; }
+		.method-delete { background: #fee2e2; color: #991b1b; }
+		.method-patch { background: #e9d5ff; color: #6b21a8; }
+		
+		.endpoint-path {
+			font-family: 'Monaco', 'Courier New', monospace;
+			font-size: 1.1rem;
+			font-weight: 600;
+			color: var(--dark);
+		}
+		
+		.endpoint-details {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 1rem;
+			margin-top: 1rem;
+		}
+		
+		.detail-item {
+			font-size: 0.9rem;
+		}
+		
+		.detail-label {
+			font-weight: 600;
+			color: var(--gray);
+			display: block;
+			margin-bottom: 0.3rem;
+		}
+		
+		.detail-value {
+			color: var(--dark);
+		}
+		
+		.curl-section {
+			margin-top: 1rem;
+			padding: 1rem;
+			background: var(--white);
+			border-radius: 8px;
+			border: 1px solid var(--border);
+		}
+		
+		.curl-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 0.5rem;
+		}
+		
+		.curl-code {
+			font-family: 'Monaco', 'Courier New', monospace;
+			font-size: 0.85rem;
+			color: var(--dark);
+			word-break: break-all;
+		}
+		
+		.btn-copy {
+			background: var(--primary);
+			color: white;
+			border: none;
+			padding: 0.4rem 0.8rem;
+			border-radius: 6px;
+			font-size: 0.85rem;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+		
+		.btn-copy:hover {
+			background: var(--primary-dark);
+		}
+		
+		/* Tabs */
+		.tabs {
+			display: flex;
+			gap: 0.5rem;
+			margin-bottom: 1.5rem;
+			border-bottom: 2px solid var(--border);
+		}
+		
+		.tab {
+			padding: 0.8rem 1.5rem;
+			background: none;
+			border: none;
+			color: var(--gray);
+			font-weight: 600;
+			cursor: pointer;
+			border-bottom: 3px solid transparent;
+			transition: all 0.3s;
+		}
+		
+		.tab.active {
+			color: var(--primary);
+			border-bottom-color: var(--primary);
+		}
+		
+		.tab-content {
+			display: none;
+		}
+		
+		.tab-content.active {
+			display: block;
+		}
+		
+		pre {
+			background: #1e293b;
+			color: #f1f5f9;
+			padding: 1.5rem;
+			border-radius: 10px;
+			overflow-x: auto;
+			font-size: 0.9rem;
+		}
+		
+		@media (max-width: 768px) {
+			.header-content {
+				flex-direction: column;
+				gap: 1rem;
+			}
+			
+			.scan-form {
+				flex-direction: column;
+			}
+			
+			.stats {
+				flex-direction: column;
+				gap: 1rem;
+			}
+			
+			.endpoint-details {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="header">
+		<div class="header-content">
+			<div class="logo">
+				🔍 ApiLens
+			</div>
+			<div class="header-actions">
+				<button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+				<a href="https://vijai021096.github.io/ApiLens/" class="btn-link">Home</a>
+				<a href="https://github.com/vijai021096/ApiLens" class="btn-link" target="_blank">GitHub</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="scan-section">
+			<form class="scan-form" onsubmit="runScan(event)">
+				<div class="form-group">
+					<label for="projectPath">Git Repository URL</label>
+					<input 
+						type="text" 
+						id="projectPath" 
+						placeholder="https://github.com/username/repo"
+						required
+					/>
+				</div>
+				<button type="submit" class="btn btn-primary" id="scanBtn">
+					<span id="btnText">🚀 Run Scan</span>
+					<span id="btnSpinner" style="display:none"><span class="spinner"></span> Scanning...</span>
+				</button>
+			</form>
+		</div>
+
+		<div id="alert" class="alert"></div>
+
+		<div class="results-section" id="resultsSection" style="display:none">
+			<div class="results-header">
+				<div>
+					<h2 class="results-title">Scan Results</h2>
+					<div class="stats" id="stats"></div>
+				</div>
+				<div class="export-buttons" id="exportButtons"></div>
+			</div>
+
+			<div class="tabs">
+				<button class="tab active" onclick="showTab('controllers')">📊 Controllers</button>
+				<button class="tab" onclick="showTab('json')">📄 Raw JSON</button>
+			</div>
+
+			<div id="controllers-tab" class="tab-content active"></div>
+			<div id="json-tab" class="tab-content">
+				<pre id="rawJson"></pre>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// Theme
+		function toggleTheme() {
+			const html = document.documentElement;
+			const current = html.getAttribute('data-theme');
+			const next = current === 'dark' ? 'light' : 'dark';
+			html.setAttribute('data-theme', next);
+			localStorage.setItem('theme', next);
+			document.querySelector('.theme-toggle').textContent = next === 'dark' ? '☀️' : '🌙';
+		}
+
+		// Load theme
+		const savedTheme = localStorage.getItem('theme') || 'light';
+		document.documentElement.setAttribute('data-theme', savedTheme);
+		if (savedTheme === 'dark') {
+			document.querySelector('.theme-toggle').textContent = '☀️';
+		}
+
+		// Load last path
+		const lastPath = localStorage.getItem('lastPath');
+		if (lastPath) {
+			document.getElementById('projectPath').value = lastPath;
+		}
+
+		// Show alert
+		function showAlert(message, type) {
+			const alert = document.getElementById('alert');
+			alert.className = `alert alert-${type}`;
+			alert.textContent = message;
+			alert.style.display = 'flex';
+			setTimeout(() => { alert.style.display = 'none'; }, 5000);
+		}
+
+		// Run scan
+		async function runScan(e) {
+			e.preventDefault();
+			const path = document.getElementById('projectPath').value;
+			const scanBtn = document.getElementById('scanBtn');
+			const btnText = document.getElementById('btnText');
+			const btnSpinner = document.getElementById('btnSpinner');
+			
+			localStorage.setItem('lastPath', path);
+			
+			scanBtn.disabled = true;
+			btnText.style.display = 'none';
+			btnSpinner.style.display = 'inline-flex';
+			
+			try {
+				const res = await fetch(`https://apilens.onrender.com/api/scan?path=${encodeURIComponent(path)}`);
+				if (!res.ok) throw new Error('Scan failed');
+				const data = await res.json();
+				displayResults(data, path);
+				showAlert('✅ Scan completed successfully!', 'success');
+			} catch (err) {
+				showAlert('❌ Scan failed: ' + err.message, 'error');
+			} finally {
+				scanBtn.disabled = false;
+				btnText.style.display = 'inline';
+				btnSpinner.style.display = 'none';
+			}
+		}
+
+		// Display results
+		function displayResults(data, path) {
+			document.getElementById('resultsSection').style.display = 'block';
+			
+			// Stats
+			document.getElementById('stats').innerHTML = `
+				<div class="stat">
+					<div class="stat-value">${data.controllersFound || 0}</div>
+					<div class="stat-label">Controllers</div>
+				</div>
+				<div class="stat">
+					<div class="stat-value">${data.endpointsFound || 0}</div>
+					<div class="stat-label">Endpoints</div>
+				</div>
+			`;
+			
+			// Export buttons
+			document.getElementById('exportButtons').innerHTML = `
+				<button class="btn btn-secondary" onclick="downloadExport('markdown', '${path}')">📝 Markdown</button>
+				<button class="btn btn-secondary" onclick="downloadExport('postman', '${path}')">📮 Postman</button>
+				<button class="btn btn-secondary" onclick="downloadExport('openapi', '${path}')">📋 OpenAPI</button>
+			`;
+			
+			// Controllers
+			let html = '';
+			(data.details || []).forEach(ctrl => {
+				html += `
+					<div class="controller-card">
+						<div class="controller-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+							<span class="controller-name">${ctrl.controller}</span>
+							<span class="controller-count">${ctrl.endpointCount || ctrl.endpoints.length} endpoints</span>
+						</div>
+						<div class="endpoints">
+							${(ctrl.endpoints || []).map(ep => `
+								<div class="endpoint">
+									<div class="endpoint-header">
+										<span class="method-badge method-${ep.method.toLowerCase()}">${ep.method}</span>
+										<span class="endpoint-path">${ep.path}</span>
+									</div>
+									${ep.pathVariables && ep.pathVariables.length ? `
+										<div class="detail-item">
+											<span class="detail-label">Path Variables:</span>
+											<span class="detail-value">${ep.pathVariables.join(', ')}</span>
+										</div>
+									` : ''}
+									${ep.queryParams && ep.queryParams.length ? `
+										<div class="detail-item">
+											<span class="detail-label">Query Params:</span>
+											<span class="detail-value">${ep.queryParams.join(', ')}</span>
+										</div>
+									` : ''}
+									${ep.curl ? `
+										<div class="curl-section">
+											<div class="curl-header">
+												<strong>cURL</strong>
+												<button class="btn-copy" onclick="copy('${ep.curl.replace(/'/g, "\\'")}')">📋 Copy</button>
+											</div>
+											<code class="curl-code">${ep.curl}</code>
+										</div>
+									` : ''}
+								</div>
+							`).join('')}
+						</div>
+					</div>
+				`;
+			});
+			document.getElementById('controllers-tab').innerHTML = html;
+			
+			// Raw JSON
+			document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
+		}
+
+		// Tabs
+		function showTab(tab) {
+			document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+			document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+			event.target.classList.add('active');
+			document.getElementById(tab + '-tab').classList.add('active');
+		}
+
+		// Copy
+		function copy(text) {
+			navigator.clipboard.writeText(text);
+			showAlert('✅ Copied to clipboard!', 'success');
+		}
+
+		// Download
+		function downloadExport(type, path) {
+			const urls = {
+				markdown: `https://apilens.onrender.com/api/export/markdown?path=${encodeURIComponent(path)}&title=API Documentation`,
+				postman: `https://apilens.onrender.com/api/export/postman?path=${encodeURIComponent(path)}&name=ApiLens Collection`,
+				openapi: `https://apilens.onrender.com/api/export/openapi?path=${encodeURIComponent(path)}&title=API Spec`
+			};
+			window.open(urls[type], '_blank');
+		}
+	</script>
+</body>
+</html>
+
+<!-- Updated: Sun Nov 16 23:02:07 IST 2025 -->
